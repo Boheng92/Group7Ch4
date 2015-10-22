@@ -7,6 +7,8 @@ int startupDelay = 1000; // time to pause at each calibration step
 double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
 
+double wheelOffset = 0.0; // For Adjusting the wheel
+
 //double wheelStartUpOffset = 0.0; // For Adjusting the steering
  
 void setup()
@@ -17,6 +19,8 @@ void setup()
    *  you don't need to re-calibrate each time, and you can comment this part out.
    */
   calibrateESC();
+
+  Serial.begin(9600);
 }
 
 /* Convert degree value to radians */
@@ -57,23 +61,50 @@ void oscillate(){
 }
 
 void steerLeft(double d)
-{
+{ 
+  Serial.write("Steer Left:");
+  Serial.write(d);
+  Serial.write("\n");
+  
   if( (d >= 0.0 ) && (d <= 1.0))
   {
-    wheels.write(90 + (d * maxWheelOffset));
+    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+    
+    wheels.write(90 + temp);
   }
 }
 
 void steerRight(double d)
 {
+  Serial.write("Steer Right:");
+  Serial.write(d);
+  Serial.write("\n");
+  
   if( (d >= 0.0 ) && (d <= 1.0))
   {
-    wheels.write(90 - (d * maxWheelOffset));
+    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+    
+    wheels.write(90 - temp);
   }
 }
 
 void setVelocity(double s)
 {
+  if(s > 0.0)
+  {
+    Serial.write("Foward:");
+  }
+  else if(s < 0.0)
+  {
+    Serial.write("Backward:");
+  }
+  else
+  {
+    Serial.write("Stop")
+  }
+  Serial.write(s);
+  Serial.write("\n");
+  
   if( (s >= -1.0 ) && (s <= 1.0))
   {
     esc.write(90 - (s * maxSpeedOffset));
@@ -107,6 +138,33 @@ void APITest0()
   delay(1000);
 
   setVelocity(-0.5);
+
+  delay(1000);
+
+  setVelocity(0.0);
+
+  delay(1000);
+}
+
+void APITest1()
+{
+  setVelocity(0.5);
+
+  delay(1000);
+
+  steerLeft(0.5);
+
+  delay(1000);
+
+  steerLeft(0);
+
+  delay(1000);
+
+  steerRight(0.5);
+
+  delay(1000);
+
+  steerRight(0);
 
   delay(1000);
 
