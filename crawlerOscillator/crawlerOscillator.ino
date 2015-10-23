@@ -14,6 +14,7 @@ void setup()
   /*  If you're re-uploading code via USB while leaving the ESC powered on, 
    *  you don't need to re-calibrate each time, and you can comment this part out.
    */
+   Serial.begin(9600);
   calibrateESC();
 }
 
@@ -46,8 +47,10 @@ void oscillate(){
     double rad = degToRad(i);
     double speedOffset = sin(rad) * maxSpeedOffset;
     double wheelOffset = sin(rad) * maxWheelOffset;
-    esc.write(90 + speedOffset);
-    wheels.write(90 + wheelOffset);
+//    Serial.println(90 + speedOffset);
+    Serial.println(90 + wheelOffset);
+//    esc.write(90 + speedOffset);
+//    wheels.write(90 + wheelOffset);
     delay(50);
   }
 }
