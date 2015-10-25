@@ -63,12 +63,12 @@ void oscillate(){
 void steerLeft(double d)
 { 
   Serial.write("Steer Left:");
-  Serial.write(d);
-  Serial.write("\n");
+//  Serial.write(d);
+ // Serial.write("\n");
   
   if( (d >= 0.0 ) && (d <= 1.0))
   {
-    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+    double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
     wheels.write(90 + temp);
   }
@@ -76,13 +76,13 @@ void steerLeft(double d)
 
 void steerRight(double d)
 {
-  Serial.write("Steer Right:");
-  Serial.write(d);
-  Serial.write("\n");
+  //Serial.write("Steer Right:");
+  //Serial.write(d);
+  //Serial.write("\n");
   
   if( (d >= 0.0 ) && (d <= 1.0))
   {
-    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+    double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
     wheels.write(90 - temp);
   }
@@ -92,18 +92,18 @@ void setVelocity(double s)
 {
   if(s > 0.0)
   {
-    Serial.write("Foward:");
+    //Serial.write("Foward:");
   }
   else if(s < 0.0)
   {
-    Serial.write("Backward:");
+    //Serial.write("Backward:");
   }
   else
   {
-    Serial.write("Stop")
+    //Serial.write("Stop")
   }
-  Serial.write(s);
-  Serial.write("\n");
+  //Serial.write(s);
+  //Serial.write("\n");
   
   if( (s >= -1.0 ) && (s <= 1.0))
   {
@@ -177,7 +177,7 @@ void loop()
 {
    //oscillate();
 
-   //APITest0();
+   APITest0();
 }
 
 
