@@ -63,29 +63,44 @@ void oscillate(){
 void steerLeft(double d)
 { 
   Serial.write("Steer Left:");
-  Serial.write(d);
   Serial.write("\n");
   
-  if( (d >= 0.0 ) && (d <= 1.0))
-  {
-    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+  double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
-    wheels.write(90 + temp);
-  }
+  wheels.write(90 + temp);
 }
 
 void steerRight(double d)
 {
   Serial.write("Steer Right:");
-  Serial.write(d);
   Serial.write("\n");
   
-  if( (d >= 0.0 ) && (d <= 1.0))
-  {
-    double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
+  double temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
-    wheels.write(90 - temp);
+  wheels.write(90 - temp);
+}
+
+void steer(double d)
+{
+  Serial.write("Steer Right:");
+  Serial.write("\n");
+
+  double temp;
+  
+  if(d <= 1.0 && d >= -1.0)
+  {
+    temp = max( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
   }
+  else if(d < -1.0)
+  {
+    temp = -1.0;
+  }
+  else
+  {
+    temp = 1.0;
+  }
+    
+  wheels.write(90 - temp);
 }
 
 void setVelocity(double s)
@@ -100,14 +115,20 @@ void setVelocity(double s)
   }
   else
   {
-    Serial.write("Stop")
+    Serial.write("Stop");
   }
-  Serial.write(s);
-  Serial.write("\n");
   
   if( (s >= -1.0 ) && (s <= 1.0))
   {
     esc.write(90 - (s * maxSpeedOffset));
+  }
+  else if(s < -1.0)
+  {
+    esc.write(90 + maxSpeedOffset);
+  }
+  else
+  {
+    esc.write(90 - maxSpeedOffset);
   }
 }
 
