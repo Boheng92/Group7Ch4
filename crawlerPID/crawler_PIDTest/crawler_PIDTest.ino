@@ -41,8 +41,8 @@ void setup()
   calibrateESC();
 
     //initialize the variables we're linked to
-  Input = analogRead(PIN_INPUT);
-  Setpoint = 100;
+  Input = getHeadDis() - getTailDis();
+  Setpoint = 0.0;
 
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
@@ -100,37 +100,6 @@ void calibrateESC(){
     esc.write(90); // reset the ESC to neutral (non-moving) value
 }
 
-//double calc(double d, double lim)
-//{
-//  double result = ((d - threshHoldDistance)/threshHoldDistance) * lim;
-//
-//  if (result > lim)
-//  {
-//    result = lim;
-//  }
-//  else if(result < -lim)
-//  {
-//    result = -lim;
-//  }
-//
-//  return result;
-//}
-//
-//void backAndForwardControl() {
-//  double distance = (double)analogRead(pin_head) / 2;
-//
-//  double temp = calc(distance, 0.3);
-//
-//  if(temp > 0)
-//  {
-//    steerRight(temp);
-//  }
-//  else
-//  {
-//    steerLeft(-temp);
-//  }
-//   
-//}
 
 void steerTheCar(double dis) {
   double temp = abs(threshHoldDistance * threshHoldDistance - dis);
@@ -205,7 +174,11 @@ void loop()
       head_sum += getHeadDis();
       tail_sum += getTailDis();
       if (compareHeadTail(head_sum, tail_sum)) {
-        steerLeft(0.0);
+
+
+          Input = getHeadDis() - getTailDis();
+          myPID.Compute(); 
+          steerLeft(output);
       }
       count--; 
    } else {
