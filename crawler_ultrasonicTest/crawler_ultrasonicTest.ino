@@ -1,10 +1,4 @@
 #include <Servo.h>
-#include <PID_v1.h>
-
-double Setpoint, Input, Output;
-double Kp=2, Ki=5, Kd=1;
-PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-
 
  
 Servo wheels; // servo for turning the wheels
@@ -13,8 +7,8 @@ bool startup = true; // used to ensure startup only happens once
 int startupDelay = 1000; // time to pause at each calibration step
 double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
-
 double wheelOffset = 0.0; // For Adjusting the wheel
+//threshHold distance to the wall
 double threshHoldDistance = 20.0;
 
 int pin_head = 0;
@@ -39,16 +33,6 @@ void setup()
    *  you don't need to re-calibrate each time, and you can comment this part out.
    */
   calibrateESC();
-
-    //initialize the variables we're linked to
-  Input = analogRead(PIN_INPUT);
-  Setpoint = 100;
-
-  //turn the PID on
-  myPID.SetMode(AUTOMATIC);
-
-
-  
 
   Serial.begin(9600);
 }
@@ -132,6 +116,8 @@ void calibrateESC(){
 //   
 //}
 
+
+// Dynamiclly control the steer angle according to the distance to the wall
 void steerTheCar(double dis) {
   double temp = abs(threshHoldDistance * threshHoldDistance - dis);
   if (temp == 0.0) {
@@ -200,8 +186,6 @@ void setVelocity(double s)
 void loop()
 {
    if (count > 0) {
-//      Serial.println((String)count+"  "+(String)distance_sum);
-//      distance_sum += calcDistance();
       head_sum += getHeadDis();
       tail_sum += getTailDis();
       if (compareHeadTail(head_sum, tail_sum)) {
@@ -211,9 +195,7 @@ void loop()
    } else {
       head_sum /= 3;
       tail_sum /= 3;
-      Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
       if (!compareHeadTail(head_sum, tail_sum)) {
-        Serial.println("Steer the car");
         steerTheCar(calcDistance(head_sum, tail_sum));  
       }
       head_sum = 0;
@@ -221,7 +203,6 @@ void loop()
       count = 3;
    }
    setVelocity(0.3);
-//   steerTheCar(calcDistance());
    delay(100);
 }
 
