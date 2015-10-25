@@ -2,7 +2,7 @@
 #include <PID_v1.h>
 
 double Setpoint, Input, Output;
-double Kp=2, Ki=5, Kd=1;
+double Kp=3.0, Ki=0.05, Kd=0.0000839;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 
@@ -171,15 +171,20 @@ void loop()
    if (count > 0) {
 //      Serial.println((String)count+"  "+(String)distance_sum);
 //      distance_sum += calcDistance();
+      double head_dis = getHeadDis();
+      double tail_dis = getTailDis();
+      if (compareHeadTail(head_dis, tail_dis)) {      
+          Serial.println("======================================");
+          Input = head_dis - tail_dis;
+          if (abs(Input) < 0.5){
+            Input = 0;
+          }
+          myPID.Compute(); 
+          Serial.println("output is:" + (String)Output);
+          steerLeft(Output);
+      }
       head_sum += getHeadDis();
       tail_sum += getTailDis();
-      if (compareHeadTail(head_sum, tail_sum)) {
-
-
-          Input = getHeadDis() - getTailDis();
-          myPID.Compute(); 
-          steerLeft(output);
-      }
       count--; 
    } else {
       head_sum /= 3;
