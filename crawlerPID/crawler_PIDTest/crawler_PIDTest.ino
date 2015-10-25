@@ -169,8 +169,6 @@ void setVelocity(double s)
 void loop()
 {
    if (count > 0) {
-//      Serial.println((String)count+"  "+(String)distance_sum);
-//      distance_sum += calcDistance();
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
       if (compareHeadTail(head_dis, tail_dis)) {      
@@ -183,10 +181,13 @@ void loop()
           Serial.println("output is:" + (String)Output);
           steerLeft(Output);
       }
-      head_sum += getHeadDis();
-      tail_sum += getTailDis();
-      count--; 
-   } else {
+      else {
+        count--;
+        head_sum += getHeadDis();
+        tail_sum += getTailDis(); 
+      }
+   } 
+   else {
       head_sum /= 3;
       tail_sum /= 3;
       Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
@@ -199,7 +200,6 @@ void loop()
       count = 3;
    }
    setVelocity(0.3);
-//   steerTheCar(calcDistance());
    delay(100);
 }
 
