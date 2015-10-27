@@ -50,7 +50,7 @@ void setup()
   Setpoint = 0.1;
 
   //turn the PID on
-  myPID.SetOutputLimits(-0.3,0.3);
+  myPID.SetOutputLimits(-1,1);
   myPID.SetMode(AUTOMATIC);
 
 
@@ -196,19 +196,7 @@ void loop()
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
       if (compareHeadTail(head_dis, tail_dis)) {      
-//          Serial.println("======================================");
-//          steerRight(0.1);
-          Input = head_dis - tail_dis;
-          if (abs(Input) < 1){
-            Input = 0;  
-          }
-          myPID.Compute(); 
-          Serial.println("Kp is:" + (String)Kp);
-          if (Output > 0) {
-            steerRight(Output);
-          } else {
-            steerLeft(-Output);
-          }
+          steerRight(0.1);
       }
       else {
         count--;
@@ -221,14 +209,12 @@ void loop()
       tail_sum /= 3;
       Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
       if (!compareHeadTail(head_sum, tail_sum)) {
-//        Serial.println("Steer the car");
         steerTheCar(calcDistance(head_sum, tail_sum));  
       }
       head_sum = 0;
       tail_sum = 0;
       count = 3;
    }
-//   setVelocity(0.3);
   }
   delay(100);
 }
