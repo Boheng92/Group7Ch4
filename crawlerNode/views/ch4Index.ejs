@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Crawler Control</title>
+    <!-- /*<style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>*/ -->
+    <link href="../../bootstrap-3.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+   <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+   <script src="homepage.js"></script>
+  </head>
+  <body>
+	<!--
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+	-->
+
+	<p>Tell the Crawler to Stop</p>
+	<input type=button style="width:200px;height:100px;" id="b0" onclick="func()" value="STOP">
+
+
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+
+  //define a sleep function
+  function sleep(delay){
+	var start = new Date().getTime();
+	while(new Date().getTime() < start + delay);
+  }
+
+
+  function func(i)
+  {
+	//alert("Func" + i);
+
+	var m = "";
+
+	var button;
+
+	if(i == 0)
+	{
+		button = document.getElementById("b0");
+
+		//防止A某秀手速
+		button.disabled = true;
+
+		if(button.value == "ON")
+		{
+			//构造信息
+			m = "B";
+			//发送
+			socket.emit('control message', m);
+
+		}
+		else if(button.value == "OFF")
+		{
+			//button.value = "ON";
+
+			m = "A";
+
+			socket.emit('control message', m);
+
+		}
+	}
+	else if(i == 1)
+	{
+		button = document.getElementById("b1");
+		button.disabled = true;
+
+
+		if(button.value == "ON"){
+			//button.value = "OFF";
+			m = "D";
+			socket.emit('control message', m);
+
+		}
+		else if(button.value == "OFF"){
+			//button.value = "ON";
+			m = "C";
+			socket.emit('control message', m);
+		}
+	}
+	else if(i == 2)
+	{
+		button = document.getElementById("b2");
+		button.disabled = true;
+
+		if(button.value == "ON"){
+			//button.value = "OFF";
+			m = "F";
+			socket.emit('control message', m);
+
+		}
+		else if(button.value == "OFF"){
+			//button.value = "ON";
+			m = "E";
+			socket.emit('control message', m);
+		}
+	}
+	else if(i == 3)
+	{
+		button = document.getElementById("b3");
+		button.disabled = true;
+
+		if(button.value == "ON"){
+			//button.value = "OFF";
+			m = "H";
+			socket.emit('control message', m);
+
+		}
+		else if(button.value == "OFF"){
+			//button.value = "ON";
+			m = "G";
+			socket.emit('control message', m);
+		}
+	}
+
+	//sleep(5000);
+
+	button.disabled = false;
+  }
+
+</script>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+
+  var socket = io();
+
+  /*
+  $('form').submit(function(){
+    socket.emit('chat message', $('#m').val());
+
+    $('#m').val('');
+    return false;
+  });
+  */
+
+  socket.on('ack message', function(msg)
+  {
+    //$('#messages').append($('<li>').text(msg));
+
+	var m = "";
+	var button;
+	// parse msg
+	var id = msg.substring(1,2);
+	var val = msg.substring(4,5);
+
+	//alert(msg);
+
+	if(id == "0")
+	{
+		//alert("msg0");
+
+		button = document.getElementById("b0");
+
+		//仅对确认信息进行操作
+		if(val == "A")
+		{
+			// OFF ACK
+			//修改对应按键字符
+			button.value = "ON";
+		}
+		else if( val == "B")
+		{
+			// ON ACK
+			button.value = "OFF";
+		}
+
+		id = "";
+		val = "";
+	}
+	else if(id == "1")
+	{
+		//alert("msg1");
+
+		button = document.getElementById("b1");
+		if(val == "C")
+		{
+			// OFF ACK
+			//修改对应按键字符
+			button.value = "ON";
+		}
+		else if( val == "D")
+		{
+			// ON ACK
+			button.value = "OFF";
+		}
+
+		id = "";
+		val = "";
+	}
+	else if(id == "2")
+	{
+		//alert("msg2");
+
+		button = document.getElementById("b2");
+		if(val == "E")
+		{
+			// OFF ACK
+			//修改对应按键字符
+			button.value = "ON";
+		}
+		else if( val == "F")
+		{
+			// ON ACK
+			button.value = "OFF";
+		}
+
+		id = "";
+		val = "";
+	}
+	else if(id == "3")
+	{
+		//alert("msg3");
+
+		button = document.getElementById("b3");
+		if(val == "G")
+		{
+			// OFF ACK
+			//修改对应按键字符
+			button.value = "ON";
+		}
+		else if( val == "H")
+		{
+			// ON ACK
+			button.value = "OFF";
+		}
+
+		id = "";
+		val = "";
+	}
+  });
+
+</script>
+ </body>
+</html>
