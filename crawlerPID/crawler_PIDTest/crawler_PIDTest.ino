@@ -1,5 +1,10 @@
 #include <Servo.h>
 #include <PID_v1.h>
+#include <SoftwareSerial.h>
+
+//create an xBee object
+SoftwareSerial xbee(2,3); // Rx, Tx
+
 
 double Setpoint, Input, Output;
 double Kp=3.0, Ki=0.05, Kd=0.0000839;
@@ -48,8 +53,8 @@ void setup()
   myPID.SetMode(AUTOMATIC);
 
 
-  
-
+  setVelocity(0.0);
+  xbee.begin(9600);
   Serial.begin(9600);
 }
 
@@ -125,8 +130,8 @@ void steerTheCar(double dis) {
 
 void steerLeft(double d)
 { 
-  Serial.write("Steer Left:");
-  Serial.write("\n");
+//  Serial.write("Steer Left:");
+//  Serial.write("\n");
   
   if( (d >= 0.0 ) && (d <= 1.0))
   {
@@ -138,13 +143,13 @@ void steerLeft(double d)
 
 void steerRight(double d)
 {
-  Serial.write("Steer Right:");
-  Serial.write("\n");
+//  Serial.write("Steer Right:");
+//  Serial.write("\n");
   
   if( (d >= 0.0 ) && (d <= 1.0))
   {
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
-    Serial.println("temp :  "+ (String)temp);
+//    Serial.println("temp :  "+ (String)temp);
     
     wheels.write(90 - temp);
   }
@@ -168,17 +173,33 @@ void setVelocity(double s)
 
 void loop()
 {
+  if (xbee.available() > 0) {
+    String msg  = "";
+
+    // Read in message
+    while(xbee.available() > 0) {
+      msg += char(xbee.read());
+    }
+    if (msg.equals("START\n")) {
+      Serial.println(msg);
+      setVelocity(0.2);                         
+    
+    } else if (msg.equals("STOP\n")) {
+      Serial.println(msg);
+      setVelocity(0.0);
+    }
+  } else {
    if (count > 0) {
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
       if (compareHeadTail(head_dis, tail_dis)) {      
-          Serial.println("======================================");
+//          Serial.println("======================================");
           Input = head_dis - tail_dis;
           if (abs(Input) < 1){
-            Input = 0;
+            Input = 0;  
           }
           myPID.Compute(); 
-          Serial.println("output is:" + (String)Output);
+//          Serial.println("output is:" + (String)Output);
           steerLeft(Output);
       }
       else {
@@ -190,17 +211,18 @@ void loop()
    else {
       head_sum /= 3;
       tail_sum /= 3;
-      Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
+//      Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
       if (!compareHeadTail(head_sum, tail_sum)) {
-        Serial.println("Steer the car");
+//        Serial.println("Steer the car");
         steerTheCar(calcDistance(head_sum, tail_sum));  
       }
       head_sum = 0;
       tail_sum = 0;
       count = 3;
    }
-   setVelocity(0.3);
-   delay(100);
+//   setVelocity(0.3);
+  }
+  delay(100);
 }
 
 

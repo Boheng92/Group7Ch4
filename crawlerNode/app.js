@@ -42,6 +42,10 @@ http.listen(3000, function(){
 });
 
 sp.on("open", function () {
+
+  // Clear any remaining streams from previous.
+  sp.flush();
+
   console.log('open');
   // sp.on('data', function(data) {
   //   console.log('data received: ' + data);
