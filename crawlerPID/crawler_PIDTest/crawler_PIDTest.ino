@@ -15,7 +15,7 @@ double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
 
 double wheelOffset = 0.0; // For Adjusting the wheel
-double threshHoldDistance = 20.0;
+double threshHoldDistance = 27.5;
 
 int pin_head = 0;
 int pin_tail = 3;
@@ -67,7 +67,7 @@ double getTailDis() {
 
 boolean compareHeadTail(double head, double tail) {
     if (abs(head-tail) < 2) {
-      if (head < 0.8 * threshHoldDistance || head > 1.2 * threshHoldDistance) {
+      if (head < 0.7 * threshHoldDistance || head > 1.3 * threshHoldDistance) {
         return false;
       } 
       else {
@@ -174,7 +174,7 @@ void loop()
       if (compareHeadTail(head_dis, tail_dis)) {      
           Serial.println("======================================");
           Input = head_dis - tail_dis;
-          if (abs(Input) < 0.5){
+          if (abs(Input) < 1){
             Input = 0;
           }
           myPID.Compute(); 
