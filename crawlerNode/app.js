@@ -32,7 +32,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('control message', function(msg){
-    console.log(msg);
+    // console.log(msg);
     sp.write(msg + "\n");
   });
 });
@@ -47,10 +47,10 @@ sp.on("open", function () {
   sp.flush();
 
   console.log('open');
-  // sp.on('data', function(data) {
-  //   console.log('data received: ' + data);
-  //   io.emit("ack message", data);
-  // });
+  sp.on('data', function(data) {
+    console.log('Output: ' + data);
+    // io.emit("ack message", data);
+  });
 });
 
 module.exports = app;

@@ -7,7 +7,7 @@ SoftwareSerial xbee(2,3); // Rx, Tx
 
 
 double Setpoint, Input, Output;
-double Kp=3.0, Ki=0.01, Kd=1.2;
+double Kp=3.0, Ki=0.00001, Kd=1.2;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 
@@ -17,10 +17,12 @@ Servo esc; // not actually a servo, but controlled like one!
 bool startup = true; // used to ensure startup only happens once
 int startupDelay = 1000; // time to pause at each calibration step
 double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
-double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
+//double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
+double maxWheelOffset = 40; // maximum wheel turn magnitude, in servo 'degrees'
 
 double wheelOffset = 0.0; // For Adjusting the wheel
-double threshHoldDistance = 27.5;
+//double threshHoldDistance = 27.5;
+double threshHoldDistance = 27.5 * 27.5;
 
 int pin_head = 0;
 int pin_tail = 3;
@@ -46,15 +48,15 @@ void setup()
   calibrateESC();
 
     //initialize the variables we're linked to
-  Input = getHeadDis() - getTailDis();
-  Setpoint = 0.1;
+  Input = calcDistance(getHeadDis(), getTailDis());
+  Setpoint = threshHoldDistance;
 
   //turn the PID on
-  myPID.SetOutputLimits(-0.3,0.3);
+  myPID.SetOutputLimits(-0.5,0.5);
   myPID.SetMode(AUTOMATIC);
 
 
-  setVelocity(0.0);
+  setVelocity(0.3);
   xbee.begin(9600);
   Serial.begin(9600);
 }
@@ -158,6 +160,14 @@ void steerRight(double d)
   }
 }
 
+void steer(double d) 
+{   
+  if (d >= -1.0 && d <= 1.0) {
+    double temp = d * maxWheelOffset;
+    wheels.write(90 + temp);
+  }
+}
+
 /*
   Set the velocity of the car. Control the back and forward directions.
   Input s > 0 will go forward, and s < 0 will go backward.
@@ -176,61 +186,40 @@ void setVelocity(double s)
 
 void loop()
 {
-  if (xbee.available() > 0) {
-    String msg  = "";
+//  if (xbee.available() > 0) {
+//    String msg  = "";
 
     // Read in message
-    while(xbee.available() > 0) {
-      msg += char(xbee.read());
-    }
-    if (msg.equals("START\n")) {
-      Serial.println(msg);
-      setVelocity(0.3);                          
-    
-    } else if (msg.equals("STOP\n")) {
-      Serial.println(msg);
-      setVelocity(0.0);
-    }
-  } else {
-   if (count > 0) {
+//    while(xbee.available() > 0) {
+//      msg += char(xbee.read());
+//    }
+//    if (msg.equals("START\n")) {
+//      Serial.println(msg);
+//      setVelocity(0.35);                          
+//    
+//    } else if (msg.equals("STOP\n")) {
+//      Serial.println(msg);
+//      setVelocity(0.0);
+//    }
+//  } else {
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
-      if (compareHeadTail(head_dis, tail_dis)) {      
-//          Serial.println("======================================");
-//          steerRight(0.1);
-          Input = head_dis - tail_dis;
-          if (abs(Input) < 1){
-            Input = 0;  
-          }
-          myPID.Compute(); 
-          Serial.println("Kp is:" + (String)Kp);
-          if (Output > 0) {
-            steerRight(Output);
-          } else {
-            steerLeft(-Output);
-          }
+      Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+      Input = calcDistance(getHeadDis(), getTailDis());
+//      if (abs(Input) < 1){
+//        Input = 0;  
+//      }
+      myPID.Compute();
+      Serial.println(Output);
+      xbee.println(Output);
+//      steer(Output); 
+      if (Output < 0) {
+        steerRight(-Output);
+      } else {
+        steerLeft(Output);
       }
-      else {
-        count--;
-        head_sum += getHeadDis();
-        tail_sum += getTailDis(); 
-      }
-   } 
-   else {
-      head_sum /= 3;
-      tail_sum /= 3;
-      Serial.println("head:" + (String)head_sum + "   tail:   "+ (String)tail_sum);
-      if (!compareHeadTail(head_sum, tail_sum)) {
-//        Serial.println("Steer the car");
-        steerTheCar(calcDistance(head_sum, tail_sum));  
-      }
-      head_sum = 0;
-      tail_sum = 0;
-      count = 3;
-   }
-//   setVelocity(0.3);
-  }
-  delay(100);
+//  }
+  delay(50);
 }
 
 
