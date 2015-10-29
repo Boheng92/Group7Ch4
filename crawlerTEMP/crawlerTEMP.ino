@@ -2,10 +2,6 @@
 #include <PID_v1.h>
 #include <SoftwareSerial.h>
 
-//create an xBee object
-SoftwareSerial xbee(2,3); // Rx, Tx
-
-
 double Setpoint, Input, Output;
 double Kp=3.0, Ki=0.00001, Kd=1.2;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
@@ -18,11 +14,11 @@ bool startup = true; // used to ensure startup only happens once
 int startupDelay = 1000; // time to pause at each calibration step
 double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 //double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
-double maxWheelOffset = 40; // maximum wheel turn magnitude, in servo 'degrees'
+double maxWheelOffset = 70; // maximum wheel turn magnitude, in servo 'degrees'
 
-double wheelOffset = 20.0; // For Adjusting the wheel
-//double threshHoldDistance = 27.5;
-double threshHoldDistance = 26 * 26;
+double wheelOffset = 30.0; // For Adjusting the wheel
+double threshHoldDistance = 27.5 * 27.5;
+//double threshHoldDistance = 26 * 26;
 //double threshHoldDistance = 900;
 
 int pin_head = 0;
@@ -34,7 +30,7 @@ bool goForward = true;
 //double wheelStartUpOffset = 0.0; // For Adjusting the steering
 
 
-int count = 0;
+int count;
 //double distance_sum = 0.0;
 //double head_sum = 0.0;
 //double tail_sum = 0.0;
@@ -53,50 +49,30 @@ void setup()
   Setpoint = threshHoldDistance;
 
   //turn the PID on
-  myPID.SetOutputLimits(-0.3,0.3);
+  myPID.SetOutputLimits(-0.4,0.01);
   myPID.SetMode(AUTOMATIC);
-
+  count = 0;
 
   setVelocity(0.3);
-  xbee.begin(9600);
   Serial.begin(9600);
 }
 
 double getHeadDis() {
   double A1 = (double)analogRead(pin_head);
   double distance_head = exp(8.5841-log(A1));
-//  Serial.println("head: "+ (String)distance_head);
   return distance_head;
 }
 
 double getTailDis() {
   double A2 = (double)analogRead(pin_tail);
   double distance_tail = exp(8.5841-log(A2));
-//  Serial.println("tail: "+ (String)distance_tail);
   return distance_tail;
-}
-
-boolean compareHeadTail(double head, double tail) {
-    if (abs(head-tail) < 2) {
-      if (head < 0.7 * threshHoldDistance || head > 1.3 * threshHoldDistance) {
-        return false;
-      } 
-      else {
-        return true;
-      }
-    } 
-    else {
-      return false;
-    }
 }
 
 double calcDistance(double head, double tail) {
   double distance_head = head;
   double distance_tail = tail;
-//  Serial.println("head: " + (String)distance_head);
-//  Serial.println("tail: " + (String)distance_tail);
   double distance = (car_length * car_length * distance_head * distance_head) / (car_length * car_length + (distance_head - distance_tail) * (distance_head - distance_tail));
-//  Serial.println("distance:  " + (String)distance);
   return distance;
 }
 
@@ -111,28 +87,6 @@ void calibrateESC(){
     esc.write(90); // reset the ESC to neutral (non-moving) value
 }
 
-
-void steerTheCar(double dis) {
-  double temp = abs(threshHoldDistance * threshHoldDistance - dis);
-  if (temp == 0.0) {
-    return;
-  }
-  if (dis < threshHoldDistance * threshHoldDistance) {
-    if (temp > 0.4 * threshHoldDistance * threshHoldDistance) {
-      steerLeft(0.6);
-    }
-    else {
-      steerLeft(0.6 * temp / (threshHoldDistance * threshHoldDistance) / 0.4);
-    }
-  } else {
-    if (temp > 0.4 * threshHoldDistance * threshHoldDistance) {
-      steerRight(0.6);
-    } 
-    else {
-      steerRight(0.6 * temp / (threshHoldDistance * threshHoldDistance) / 0.4);
-    }
-  } 
-}
 
 void steerLeft(double d)
 { 
@@ -158,14 +112,6 @@ void steerRight(double d)
 //    Serial.println("temp :  "+ (String)temp);
     
     wheels.write(90 - temp);
-  }
-}
-
-void steer(double d) 
-{   
-  if (d >= -1.0 && d <= 1.0) {
-    double temp = d * maxWheelOffset;
-    wheels.write(90 + temp);
   }
 }
 
@@ -211,7 +157,7 @@ void loop()
   }
   if (detectWall()) {
     count++;
-    if (count == 3) {
+    if (count == 4) {
       setVelocity(0.0);
     }
   } else{
