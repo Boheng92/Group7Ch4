@@ -20,9 +20,9 @@ double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
 //double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
 double maxWheelOffset = 40; // maximum wheel turn magnitude, in servo 'degrees'
 
-double wheelOffset = 0.0; // For Adjusting the wheel
+double wheelOffset = 20.0; // For Adjusting the wheel
 //double threshHoldDistance = 27.5;
-double threshHoldDistance = 27.5 * 27.5;
+double threshHoldDistance = 26 * 26;
 //double threshHoldDistance = 900;
 
 int pin_head = 0;
@@ -34,10 +34,10 @@ bool goForward = true;
 //double wheelStartUpOffset = 0.0; // For Adjusting the steering
 
 
-int count = 3;
-double distance_sum = 0.0;
-double head_sum = 0.0;
-double tail_sum = 0.0;
+int count = 0;
+//double distance_sum = 0.0;
+//double head_sum = 0.0;
+//double tail_sum = 0.0;
  
 void setup()
 {
@@ -53,7 +53,7 @@ void setup()
   Setpoint = threshHoldDistance;
 
   //turn the PID on
-  myPID.SetOutputLimits(-0.5,0.5);
+  myPID.SetOutputLimits(-0.3,0.3);
   myPID.SetMode(AUTOMATIC);
 
 
@@ -143,7 +143,7 @@ void steerLeft(double d)
   {
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
     
-    wheels.write(70 + temp);
+    wheels.write(90 + temp);
   }
 }
 
@@ -157,7 +157,7 @@ void steerRight(double d)
     double temp = min( (d * maxWheelOffset + wheelOffset), maxWheelOffset);
 //    Serial.println("temp :  "+ (String)temp);
     
-    wheels.write(70 - temp);
+    wheels.write(90 - temp);
   }
 }
 
@@ -183,25 +183,40 @@ void setVelocity(double s)
   }
 }
 
-
+boolean detectWall() {
+    double distance = (double)analogRead(5) / 2;
+    Serial.println(distance);
+     if (distance < 15) {
+      return true;  
+    } else {
+      return false;
+    }
+}
 
 void loop()
 {
-      double head_dis = getHeadDis();
-      double tail_dis = getTailDis();
-      if (head_dis < 60 && tail_dis < 60) {
-        Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
-        Input = calcDistance(getHeadDis(), getTailDis());
-        myPID.Compute();
-        Serial.println(Output);
-        if (Output < 0) {
-          steerRight(-Output);
-        } else {
-          steerLeft(Output);
-        }
-      } else {
-        steerRight(0.1);  
-      }
-      delay(50);
+  double head_dis = getHeadDis();
+  double tail_dis = getTailDis();
+  if (head_dis < 80 && tail_dis < 80) {
+    Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+    Input = calcDistance(getHeadDis(), getTailDis());
+    myPID.Compute();
+    if (Output < 0) {
+       steerRight(-Output);
+    } else {
+       steerLeft(Output);
+    }
+  } else {
+    steerRight(0.1);  
+  }
+  if (detectWall()) {
+    count++;
+    if (count == 3) {
+      setVelocity(0.0);
+    }
+  } else{
+    count = 0;  
+  }
+  delay(50);
 }
 
