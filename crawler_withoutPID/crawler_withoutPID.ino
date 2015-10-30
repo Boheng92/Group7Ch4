@@ -198,7 +198,13 @@ void loop()
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
       if (compareHeadTail(head_dis, tail_dis)) {      
-          steerRight(0.1);
+        Input = calcDistance(getHeadDis(), getTailDis());
+        myPID.Compute();
+        if (Output < 0) {
+        steerRight(-Output);
+        } else {
+          steerLeft(Output);
+        }
       }
       else {
         count--;

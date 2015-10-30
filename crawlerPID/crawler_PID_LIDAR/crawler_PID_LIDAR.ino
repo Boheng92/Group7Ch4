@@ -17,7 +17,12 @@ int sensorPins[] = {2,3}; // Array of pins connected to the sensor Power Enable 
 int sensorPinsArraySize = 2; // The length of the array
 
 double Setpoint, Input, Output;
+<<<<<<< HEAD
 double Kp=2.5, Ki=0.000000001, Kd=0.9;
+=======
+//double Kp=3.0, Ki=0.00001, Kd=0.5;
+double Kp=3.0, Ki=0.0001, Kd=0.9;
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 Servo wheels; // servo for turning the wheels
@@ -25,8 +30,8 @@ Servo esc; // not actually a servo, but controlled like one!
 bool startup = true; // used to ensure startup only happens once
 int startupDelay = 1000; // time to pause at each calibration step
 double maxSpeedOffset = 45; // maximum speed magnitude, in servo 'degrees'
-//double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
-double maxWheelOffset = 40; // maximum wheel turn magnitude, in servo 'degrees'
+double maxWheelOffset = 85; // maximum wheel turn magnitude, in servo 'degrees'
+//double maxWheelOffset = 40; // maximum wheel turn magnitude, in servo 'degrees'
 
 double wheelOffset = 0.0; // For Adjusting the wheel
 double threshHoldDistance = 69.85;
@@ -86,6 +91,7 @@ void setup()
   calibrateESC();
   
   Serial.println("setup complete");
+<<<<<<< HEAD
     //initialize the variables we're linked to
   Input = calcDistance(getHeadDis(), getTailDis());
   
@@ -95,6 +101,19 @@ void setup()
   myPID.SetOutputLimits(-0.9,0.3);
   myPID.SetMode(AUTOMATIC);
 
+=======
+  
+    //initialize the variables we're linked to
+  Input = calcDistance(getHeadDis(), getTailDis());
+  
+  Setpoint = threshHoldDistance;
+  
+  //turn the PID on
+  myPID.SetOutputLimits(-0.7,0.5);
+  myPID.SetMode(AUTOMATIC);
+
+
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
   setVelocity(0.3);
   
   Wire.begin(); // join i2c bus
@@ -144,7 +163,16 @@ double getHeadDis() {
     int sum = 0; // Variable to store sum
     for(int i = 0; i < 2; i++){ 
         int val =  lidarGetRange();
+<<<<<<< HEAD
         sum = sum + val;// Add up all of the readings
+=======
+        if(val<0 || val > 400){
+          i--;
+        }
+        else{
+        sum = sum + val;// Add up all of the readings
+        }
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
     }
     sum = sum/2; // Divide the total by the number of readings to get the average
     return sum;
@@ -155,12 +183,38 @@ double getTailDis() {
       int sum = 0; // Variable to store sum
       for(int i = 0; i < 2; i++){ 
           int val =  lidarGetRange();
+<<<<<<< HEAD
           sum = sum + val;// Add up all of the readings
+=======
+          if(val<0 || val > 400){
+            i--;
+          }
+          else{
+          sum = sum + val;// Add up all of the readings
+          }
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
       }
       sum = sum/2; // Divide the total by the number of readings to get the average
       return sum;
 }
 
+<<<<<<< HEAD
+=======
+boolean compareHeadTail(double head, double tail) {
+    if (abs(head-tail) < 2) {
+      if (head < 0.7 * threshHoldDistance || head > 1.3 * threshHoldDistance) {
+        return false;
+      } 
+      else {
+        return true;
+      }
+    } 
+    else {
+      return false;
+    }
+}
+
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 double calcDistance(double head, double tail) {
   double distance_head = head;
   double distance_tail = tail;
@@ -216,6 +270,7 @@ void setVelocity(double s)
 
 void loop()
 {
+<<<<<<< HEAD
      if (count > 0) {
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
@@ -254,6 +309,18 @@ void loop()
       tail_sum = 0;
       count = 3;
    }
+=======
+      double head_dis = getHeadDis();
+      double tail_dis = getTailDis();
+      Input = calcDistance(getHeadDis(), getTailDis());
+      myPID.Compute();
+      Serial.println("Output:  "+(String)Output+"  head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+      if (Output < 0) {
+        steerRight(-Output);
+      } else {
+        steerLeft(Output);
+      }
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 }
 
 

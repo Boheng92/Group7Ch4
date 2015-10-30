@@ -2,10 +2,13 @@
 #include <PID_v1.h>
 #include <SoftwareSerial.h>
 
+<<<<<<< HEAD
 //create an xBee object
 //SoftwareSerial xbee(2,3); // Rx, Tx
 
 
+=======
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 double Setpoint, Input, Output;
 double Kp=3.0, Ki=0.00001, Kd=1.2;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
@@ -32,7 +35,10 @@ double car_length = 13;         //inches
 
 void setup()
 {
+<<<<<<< HEAD
 //  xbee.begin(9600);
+=======
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
   Serial.begin(9600);
   wheels.attach(8); // initialize wheel servo to Digital IO Pin #8
   esc.attach(9); // initialize ESC to Digital IO Pin #9
@@ -139,6 +145,10 @@ void steerRight(double d)
     wheels.write(70 - temp);
   }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 /*
   Set the velocity of the car. Control the back and forward directions.
   Input s > 0 will go forward, and s < 0 will go backward.
@@ -156,6 +166,7 @@ void setVelocity(double s)
 
 void loop()
 {
+<<<<<<< HEAD
 //  if (xbee.available() > 0) {
 //    String msg  = "";
 //    while(xbee.available() > 0) {
@@ -209,6 +220,19 @@ void loop()
     count = 0;  
   }
   delay(50);
+=======
+      double head_dis = getHeadDis();
+      double tail_dis = getTailDis();
+      Serial.println("head_dis: " + (String)head_dis + "   tail_dis:  "+ (String)tail_dis);
+      Input = calcDistance(getHeadDis(), getTailDis());
+      myPID.Compute();
+      if (Output < 0) {
+        steerRight(-Output);
+      } else {
+        steerLeft(Output);
+      }
+//  //delay(50);
+>>>>>>> eb6753e3d5c94013a03983679a38700647d8449e
 }
 
 
