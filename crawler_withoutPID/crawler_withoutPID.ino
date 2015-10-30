@@ -1,6 +1,8 @@
 #include <Servo.h>
 #include <PID_v1.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
+//#include <I2C.h>
 
 //create an xBee object
 SoftwareSerial xbee(2,3); // Rx, Tx
@@ -176,22 +178,22 @@ void setVelocity(double s)
 
 void loop()
 {
-  if (xbee.available() > 0) {
-    String msg  = "";
-
-    // Read in message
-    while(xbee.available() > 0) {
-      msg += char(xbee.read());
-    }
-    if (msg.equals("START\n")) {
-      Serial.println(msg);
-      setVelocity(0.3);                          
-    
-    } else if (msg.equals("STOP\n")) {
-      Serial.println(msg);
-      setVelocity(0.0);
-    }
-  } else {
+//  if (xbee.available() > 0) {
+//    String msg  = "";
+//
+//    // Read in message
+//    while(xbee.available() > 0) {
+//      msg += char(xbee.read());
+//    }
+//    if (msg.equals("START\n")) {
+//      Serial.println(msg);
+//      setVelocity(0.3);                          
+//    
+//    } else if (msg.equals("STOP\n")) {
+//      Serial.println(msg);
+//      setVelocity(0.0);
+//    }
+//  } else {
    if (count > 0) {
       double head_dis = getHeadDis();
       double tail_dis = getTailDis();
@@ -215,7 +217,7 @@ void loop()
       tail_sum = 0;
       count = 3;
    }
-  }
+//  }
   delay(100);
 }
 
